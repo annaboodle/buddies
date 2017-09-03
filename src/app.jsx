@@ -4,6 +4,7 @@ import '../styles/index.scss';
 import { charClasses, charRaces } from './utils/constants';
 
 import ButtonTrait from './components/ButtonTrait';
+import CharacterList from './components/CharacterList';
 import HeaderBlock from './components/HeaderBlock';
 
 export default class App extends Component {
@@ -57,9 +58,9 @@ export default class App extends Component {
     });
   }
 
-  keyPressed({ key, preventDefault }){
-    if (key === "Enter"){
-      preventDefault();
+  keyPressed(event){
+    if (event.key === "Enter"){
+      event.preventDefault();
       this.addCharacter();
     }
   }
@@ -116,28 +117,6 @@ export default class App extends Component {
     )
   }
 }
-
-function CharacterList({ characters, handleClick }){
-  return (
-    <ul>
-      {characters.map(({ charRace, charClass, charName, charNum }, i) => {
-        return (
-          <li key={i}>
-            {charRaces[charRace]} {charClasses[charClass]} {charName}
-            <button onClick={() => handleClick(i)}>
-              nope {charNum}
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-CharacterList.propTypes = {
-  characters: PropTypes.array.isRequired,
-  handleClick: PropTypes.func.isRequired,
-};
 
 class CharacterNameInput extends Component {
   constructor(props) {
