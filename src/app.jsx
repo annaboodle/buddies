@@ -1,36 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import '../styles/index.scss';
+import { charClasses, charRaces } from './utils/constants';
 
 import ButtonTrait from './components/ButtonTrait';
 import HeaderBlock from './components/HeaderBlock';
-
-const charClasses = [
-  'Barbarian',
-  'Bard',
-  'Cleric',
-  'Druid',
-  'Fighter',
-  'Wizard',
-  'Monk',
-  'Paladin',
-  'Ranger',
-  'Sorcerer',
-  'Rogue',
-  'Warlock'
-];
-
-const charRaces = [
-  'Dragonborn',
-  'Dwarf',
-  'Elf',
-  'Gnome',
-  'Half-Elf',
-  'Half-Orc',
-  'Halfling',
-  'Human',
-  'Tiefling'
-];
 
 export default class App extends Component {
   constructor(props){
