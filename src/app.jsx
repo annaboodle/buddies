@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import '../styles/index.scss';
+
+import ButtonTrait from './components/ButtonTrait';
+import HeaderBlock from './components/HeaderBlock';
 
 const charClasses = [
   'Barbarian',
@@ -14,7 +18,8 @@ const charClasses = [
   'Sorcerer',
   'Rogue',
   'Warlock'
-]
+];
+
 const charRaces = [
   'Dragonborn',
   'Dwarf',
@@ -25,38 +30,72 @@ const charRaces = [
   'Halfling',
   'Human',
   'Tiefling'
-]
+];
 
-export default class App extends React.Component {
+export default class App extends Component {
   constructor(props){
     super(props);
     this.state = {
+      characters: [],
+      charClass: 0, // index of the value in the corresponding array
       charName: "",
       charRace: 0, // index of the value in the corresponding array
-      charClass: 0, // index of the value in the corresponding array
-      characters: []
-    }
+    };
+
+    this.addCharacter = this.addCharacter.bind(this);
+    this.changeClass = this.changeClass.bind(this);
+    this.changeRace = this.changeRace.bind(this);
+    this.deleteItem = this.deleteItem.bind(this);
+    this.keyPressed = this.keyPressed.bind(this);
+    this.updateName = this.updateName.bind(this);
   }
 
   // this takes in a string that determines what property it updates
-  changeCharacterAttribute(aspect){
-    if (aspect === "class") {
-      this.setState({ 
-        charClass: this.randomIndexGenerator(charClasses.length, this.state.charClass),
-      });
-    }
-    else if (aspect === "race") {
-      this.setState({ 
-        charRace: this.randomIndexGenerator(charRaces.length, this.state.charRace),
-      });
+
+  addCharacter() {const { characters, charName, charRace, charClass } = this.state;
+    const newItem = { charName, charRace, charClass };
+
+
+    this.setState({
+      characters: [...characters, newItem],
+      charName: "",
+    });
+  }
+
+  changeClass() {
+    this.setState({
+      charClass: this.randomIndexGenerator(charClasses.length, this.state.charClass),
+    });
+  }
+
+  changeRace() {
+    this.setState({
+      charRace: this.randomIndexGenerator(charRaces.length, this.state.charRace),
+    });
+  }
+
+  deleteItem(index) {
+    console.log(this);
+    const newCharacters = this.state.characters.filter((el, i) => index !== i);
+
+    this.setState({
+      characters: newCharacters,
+    });
+  }
+
+  keyPressed({ key, preventDefault }){
+    if (key === "Enter"){
+      preventDefault();
+      this.addCharacter();
     }
   }
 
   randomIndexGenerator(lengthOfArray, currentIndex) {
     const newIndex = Math.floor(Math.random() * lengthOfArray);
-    return newIndex !== currentIndex ? newIndex : this.randomIndexGenerator(lengthOfArray, currentIndex);
+    return newIndex !== currentIndex
+      ? newIndex
+      : this.randomIndexGenerator(lengthOfArray, currentIndex);
   }
-
 
   updateName(newName){
     this.setState({
@@ -64,70 +103,38 @@ export default class App extends React.Component {
     });
   }
 
-  keyPressed(event){
-    if (event.key === "Enter"){
-      event.preventDefault();
-      this.addCharacter();
-    }
-
-  }
-
-  addCharacter(){
-    const newChar = {
-      charName: this.state.charName,
-      charRace: this.state.charRace,
-      charClass: this.state.charClass,
-    };
-
-    this.state.characters.push(newChar);
-
-    this.setState({
-      charName: ""
-    });
-
-  }
-
-  deleteItem(index){
-    const charArray = this.state.characters.filter((el, i) => {
-      return index !== i;
-    });
-
-    this.setState({
-      characters: charArray,
-    });
-  }
-
   render() {
+    const { characters, charClass, charName, charRace } = this.state;
     return (
       <div>
 
-        <HeaderBlock 
-	      	headline="Assemble your buddies!" 
-  	    />
+        <HeaderBlock>
+          The headline goes here
+        </HeaderBlock>
 
         <CharacterList
-          characters={this.state.characters}
-          handleClick={(i) => this.deleteItem(i)}
+          characters={characters}
+          handleClick={this.deleteItem}
         />
 
-        <ButtonTrait 
-          value={charClasses[this.state.charClass]}
-          handleClick={() => this.changeCharacterAttribute("class")}
+        <ButtonTrait
+          value={charClasses[charClass]}
+          handleClick={this.changeClass}
         />
 
-        <ButtonTrait 
-          value={charRaces[this.state.charRace]}
-          handleClick={() => this.changeCharacterAttribute("race")}
+        <ButtonTrait
+          value={charRaces[charRace]}
+          handleClick={this.changeRace}
         />
 
-        <CharacterNameInput 
-          nameValue={this.state.charName}
-          onNameChange={(newName) => this.updateName(newName)}
-          handleKeyPress={(event) => this.keyPressed(event)}
+        <CharacterNameInput
+          nameValue={charName}
+          onNameChange={this.updateName}
+          handleKeyPress={this.keyPressed}
         />
 
         <ButtonSubmit
-          handleClick={() => this.addCharacter()}
+          handleClick={this.addCharacter}
         />
 
       </div>
@@ -136,64 +143,59 @@ export default class App extends React.Component {
   }
 }
 
-function CharacterList(props){
+function CharacterList({ characters, handleClick }){
   return (
     <ul>
-      {props.characters.map((character, i) => {
-        return <li key={i}>
-            {charRaces[character.charRace]} {charClasses[character.charClass]} {character.charName}
-            <button onClick={() => props.handleClick(i)}>nope {character.charNum}</button>
-        </li>
+      {characters.map(({ charRace, charClass, charName, charNum }, i) => {
+        return (
+          <li key={i}>
+            {charRaces[charRace]} {charClasses[charClass]} {charName}
+            <button onClick={() => handleClick(i)}>
+              nope {charNum}
+            </button>
+          </li>
+        );
       })}
     </ul>
   );
 }
 
-function HeaderBlock(props){
-  return (
-    <div>
-      <h1>{props.headline}</h1>
-    </div>
-  );
-}
+CharacterList.propTypes = {
+  characters: PropTypes.array.isRequired,
+  handleClick: PropTypes.func.isRequired,
+};
 
-class CharacterNameInput extends React.Component {
+class CharacterNameInput extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(e) {
-    let newName = e.target.value;
-    this.props.onNameChange(newName);
+  handleChange({ target: { value } }) {
+    this.props.onNameChange(value);
   }
 
   render() {
+    const { handleKeyPress, nameValue } = this.props;
     return (
       <div>
-        <p>{this.props.nameValue}</p>
+        <p>
+          {nameValue}
+        </p>
         <input
           type="text"
-          value={this.props.nameValue}
+          value={nameValue}
           onChange={this.handleChange}
-          onKeyPress={this.props.handleKeyPress}
+          onKeyPress={handleKeyPress}
         />
       </div>
     )
   }
 }
 
-function ButtonTrait(props){
+function ButtonSubmit({ handleClick }){
   return (
-    <button className="button--trait" onClick={props.handleClick}>
-      {props.value}
-    </button>
-  )
-}
-
-function ButtonSubmit(props){
-  return (
-    <button className="button--submit" onClick={props.handleClick}>
+    <button className="button--submit" onClick={handleClick}>
       Done
     </button>
   )
